@@ -1,0 +1,2 @@
+[console_scripts]
+col_avoid = glas.code.collision_avoidance:test

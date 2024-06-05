@@ -11,6 +11,14 @@ from matplotlib.patches import Rectangle, Circle
 
 from examples.run_singleintegrator import SingleIntegratorParam
 
+#!/usr/bin/env python3
+import rclpy
+from rclpy.node import Node
+from rclpy.executors import MultiThreadedExecutor
+from ros_gz_interfaces.srv import SetEntityPose
+from ros_gz_interfaces.msg import Entity
+from geometry_msgs.msg import PoseStamped
+
 
 class CollisionAvoidanceSystem:
     def __init__(self):
@@ -371,17 +379,21 @@ class CollisionAvoidanceSystem:
         self.env.visualize(self.sim_results[0].states[0:result.steps], 0.1)
 
 
-c = CollisionAvoidanceSystem()
-variables = c.parse_config(
-    "/Users/doguhanyeke/Desktop/research/False_Data_Attacks_on_ORCA/Attack/src/config.txt")
-print(variables)
+def main(args=None):
+    c = CollisionAvoidanceSystem()
+    variables = c.parse_config(
+        "/Users/doguhanyeke/Desktop/research/False_Data_Attacks_on_ORCA/Attack/src/config.txt")
+    print(variables)
 
-# while (c.reached_goal() is False):
-for i in range(5):
-    SimResult = namedtuple(
-        'SimResult', ['states', 'observations', 'actions', 'steps'])
-    result = SimResult._make(c.calculate_next_velocities())
-    c.sim_results.append(result)
-    c.print_agent_positions()
-    # c.print_agent_velocities()
-c.draw()
+    # while (c.reached_goal() is False):
+    for i in range(5):
+        SimResult = namedtuple(
+            'SimResult', ['states', 'observations', 'actions', 'steps'])
+        result = SimResult._make(c.calculate_next_velocities())
+        c.sim_results.append(result)
+        c.print_agent_positions()
+        # c.print_agent_velocities()
+    c.draw()
+
+if __name__ == '__main__':
+    main()
