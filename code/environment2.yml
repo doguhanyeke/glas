@@ -1,0 +1,20 @@
+name: glas
+dependencies:
+  - libffi
+  - ncurses
+  - xz
+  - tk
+  - sqlite
+  - zlib
+  - python
+  - readline
+  - openssl
+  - libedit
+  - torchvision
+  - cvxpy
+  - gym
+  - pyyaml
+  - matplotlib  
+  - hnswlib
+# add other dependencies here
+
