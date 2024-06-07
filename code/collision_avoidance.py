@@ -17,12 +17,12 @@ class CollisionAvoidanceSystem:
         # initiate glas
 
         # parse the config file
-        variables = self.parse_config(
-            "/Users/doguhanyeke/Desktop/research/False_Data_Attacks_on_ORCA/Attack/src/config.txt")
-        self.numRobots = int(variables['num_robots'])
-        self.timeStep = float(variables['time_step'])
-        self.environmentFile = variables['environment_file']
-        self.radius = float(variables['radius'])
+        # variables = self.parse_config(
+        #     "/Users/doguhanyeke/Desktop/research/False_Data_Attacks_on_ORCA/Attack/src/config.txt")
+        # self.numRobots = int(variables['num_robots'])
+        # self.timeStep = float(variables['time_step'])
+        # self.environmentFile = variables['environment_file']
+        # self.radius = float(variables['radius'])
 
         self.args = parse_args()
         # print("here", self.args)
@@ -316,9 +316,9 @@ class CollisionAvoidanceSystem:
 
 
 c = CollisionAvoidanceSystem()
-variables = c.parse_config(
-    "/Users/doguhanyeke/Desktop/research/False_Data_Attacks_on_ORCA/Attack/src/config.txt")
-print(variables)
+# variables = c.parse_config(
+#     "/Users/doguhanyeke/Desktop/research/False_Data_Attacks_on_ORCA/Attack/src/config.txt")
+# print(variables)
 
 # while (c.reached_goal() is False):
 for i in range(5):
