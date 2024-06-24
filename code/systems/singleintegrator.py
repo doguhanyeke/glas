@@ -82,7 +82,9 @@ class SingleIntegrator(Env):
         pass
 
     def step(self, a, compute_reward=True):
+        # print("HERE2")
         self.s = self.next_state(self.s, a)
+        # print("here", self.s)
         d = self.done()
         if compute_reward:
             r = self.reward()
@@ -91,10 +93,34 @@ class SingleIntegrator(Env):
         self.time_step += 1
         return self.s, r, d, {}
 
+    def step_(self, a, compute_reward=True, agentId=0, prev_pos=[],):
+        # print("bb")
+        self.s = self.next_state(self.s, a, agentId, prev_pos)
+        d = self.done()
+        # print("bb2")
+        if compute_reward:
+            r = self.reward()
+        else:
+            r = 0
+        self.time_step += 1
+        # print("bb3")
+
+        return self.s, r, d, {}
+
+    # def step_(self, a, compute_reward=True, agentId=0, prev_pos=[]):
+    #     self.s = self.next_state(self.s, a, agentId, prev_pos)
+    #     d = self.done()
+    #     if compute_reward:
+    #         r = self.reward()
+    #     else:
+    #         r = 0
+    #     self.time_step += 1
+    #     return self.s, r, d, {}
+
     def done(self):
 
         for agent in self.agents:
-            if not np.linalg.norm(agent.s - agent.s_g) < 0.05:
+            if not np.linalg.norm(agent.s - agent.s_g) < 0.5:
                 return False
         return True
 
@@ -104,7 +130,9 @@ class SingleIntegrator(Env):
         for agent_i in self.agents:
             p_i = agent_i.p
             s_i = agent_i.s
+            # print("dd")
             relative_goal = torch.Tensor(agent_i.s_g - s_i)
+            # print("dd2")
 
             time_to_goal = self.total_time - self.time_step * self.dt
 
@@ -116,8 +144,11 @@ class SingleIntegrator(Env):
                 neighbor_idx = [neighbor_idx]
             relative_neighbors = []
             for k in neighbor_idx[1:]:  # skip first entry (self)
+                # print(k, self.positions.shape[0])
                 if k < self.positions.shape[0]:
+                    # print("ee")
                     relative_neighbors.append(self.agents[k].s - s_i)
+                    # print("ee2")
                 else:
                     break
 
@@ -265,16 +296,21 @@ class SingleIntegrator(Env):
 
         return s
 
-    def next_state(self, s, a):
+    def next_state(self, s, a, agentId, agentPos):
 
         sp1 = np.zeros((self.n))
+        # print("aa")
         dt = self.times[self.time_step+1]-self.times[self.time_step]
+        # print("aa2")
 
         # single integrator
         for agent_i in self.agents:
             idx = self.agent_idx_to_state_idx(agent_i.i)
             p_idx = np.arange(idx, idx+2)
-            sp1[p_idx] = self.s[p_idx] + a[agent_i.i, :]*dt
+            if agent_i.i == agentId:
+                sp1[p_idx] = agentPos + a[agent_i.i, :]*dt
+            else:
+                sp1[p_idx] = self.s[p_idx] + a[agent_i.i, :]*dt
             agent_i.v = a[agent_i.i, :]
             # sp1[v_idx] = np.clip(a[agent_i.i,:],self.a_max,self.a_min)
 
@@ -282,11 +318,11 @@ class SingleIntegrator(Env):
         return sp1
 
     def update_agent_pos(self, agent_id, x, y):
-        idx = self.agent_idx_to_state_idx(agent_id)
-        pos = np.array([x, y])
-        self.s[idx:idx+2] = pos
-        self.agents[agent_id].p = pos
-        self.agents[agent_id].s = pos
+        self.agents[agent_id].p = np.array([x, y])
+        self.agents[agent_id].s = np.array([x, y])
+
+        self.positions = np.array([agent_i.p for agent_i in self.agents])
+        self.kd_tree_neighbors = spatial.KDTree(self.positions)
 
     def update_agent_vel(self, agent_id, vx, vy):
         vel = np.array([vx, vy])
@@ -295,6 +331,11 @@ class SingleIntegrator(Env):
     def update_agents(self, s):
         for agent_i in self.agents:
             idx = self.agent_idx_to_state_idx(agent_i.i)
+            # print("sim_dt: ", self.param.sim_dt)
+            # print("agent_v: ", agent_i.v)
+            # print("agent_p: ", agent_i.p)
+            # print("s: ", s)
+
             agent_i.p = s[idx:idx+2]
             # agent_i.v = s[idx+2:idx+4]
             agent_i.s = agent_i.p
