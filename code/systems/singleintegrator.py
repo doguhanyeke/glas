@@ -93,19 +93,19 @@ class SingleIntegrator(Env):
         self.time_step += 1
         return self.s, r, d, {}
 
-    def step_(self, a, compute_reward=True, agentId=0, prev_pos=[],):
-        # print("bb")
-        self.s = self.next_state(self.s, a, agentId, prev_pos)
-        d = self.done()
-        # print("bb2")
-        if compute_reward:
-            r = self.reward()
-        else:
-            r = 0
-        self.time_step += 1
-        # print("bb3")
+    # def step_(self, a, compute_reward=True, agentId=0, prev_pos=[],):
+    #     # print("bb")
+    #     self.s = self.next_state(self.s, a, agentId, prev_pos)
+    #     d = self.done()
+    #     # print("bb2")
+    #     if compute_reward:
+    #         r = self.reward()
+    #     else:
+    #         r = 0
+    #     self.time_step += 1
+    #     # print("bb3")
 
-        return self.s, r, d, {}
+    #     return self.s, r, d, {}
 
     # def step_(self, a, compute_reward=True, agentId=0, prev_pos=[]):
     #     self.s = self.next_state(self.s, a, agentId, prev_pos)
@@ -296,7 +296,7 @@ class SingleIntegrator(Env):
 
         return s
 
-    def next_state(self, s, a, agentId, agentPos):
+    def next_state(self, s, a):
 
         sp1 = np.zeros((self.n))
         # print("aa")
@@ -307,10 +307,7 @@ class SingleIntegrator(Env):
         for agent_i in self.agents:
             idx = self.agent_idx_to_state_idx(agent_i.i)
             p_idx = np.arange(idx, idx+2)
-            if agent_i.i == agentId:
-                sp1[p_idx] = agentPos + a[agent_i.i, :]*dt
-            else:
-                sp1[p_idx] = self.s[p_idx] + a[agent_i.i, :]*dt
+            sp1[p_idx] = self.s[p_idx] + a[agent_i.i, :]*dt
             agent_i.v = a[agent_i.i, :]
             # sp1[v_idx] = np.clip(a[agent_i.i,:],self.a_max,self.a_min)
 

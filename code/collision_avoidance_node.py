@@ -3,6 +3,7 @@
 __author__ = "Kartik Anand Pant"
 __contact__ = "kpant14@gmail.com"
 
+import os
 import torch
 import rclpy
 import numpy as np
@@ -34,8 +35,8 @@ class CollisionAvoidanceSystem(Node):
             history = QoSHistoryPolicy.KEEP_LAST,
             depth = 1
         )
-        self.declare_parameter('robot_id', 1)
-        self.robot_id = self.get_parameter('robot_id').get_parameter_value().integer_value
+        # self.declare_parameter('robot_id', 1)
+        # self.robot_id = self.get_parameter('robot_id').get_parameter_value().integer_value
         # self.robot_id =1
         # parse the config file
         # variables = self.parse_config(
@@ -46,6 +47,9 @@ class CollisionAvoidanceSystem(Node):
         # self.radius = float(variables['radius'])
 
         self.args = parse_args()
+
+        self.robot_id = self.args.robot_id
+        print('id', self.robot_id)
         # print("here", self.args)
         self.param = SingleIntegratorParam()
         # print("here", self.param)
@@ -103,19 +107,20 @@ class CollisionAvoidanceSystem(Node):
         
     def vehicle_local_pos_callback(self, msg, id):
         # TODO: not assign, add
-        print(id, msg.x,msg.y)
-        self.set_agent_position(id, msg.x+8.0, msg.y+8.0)
+        
+        self.set_agent_position(id, msg.y + 9.0, msg.x + 7.0)
 
         self.calculate_next_velocities()
-
         trajectory_msg = TrajectorySetpoint()
 
         vx = self.get_agent_velocities()[self.robot_id-1][0]
         vy = self.get_agent_velocities()[self.robot_id-1][1]
-        
+        px = self.get_agent_positions()[self.robot_id-1][0]
+        py = self.get_agent_positions()[self.robot_id-1][1]
+        print(self.robot_id, px, py, vx, vy)
         trajectory_msg.velocity[1]  = vx
         trajectory_msg.velocity[0]  = vy
-        trajectory_msg.velocity[2]  = -1.5
+        trajectory_msg.velocity[2]  = 0
         
         self.trajectory_setpoint_pub_.publish(trajectory_msg)
 
@@ -146,7 +151,12 @@ class CollisionAvoidanceSystem(Node):
 
     def get_agent_positions(self):
         # get the agent positions
-        return self.env.s
+         # get the agent velocities
+        positions = []
+        for agent in self.env.agents:
+            positions.append(agent.p)
+        return positions
+       
 
     def get_agent_velocities(self):
         # get the agent velocities
@@ -166,19 +176,15 @@ class CollisionAvoidanceSystem(Node):
         for agent_velocity in self.get_agent_velocities():
             print(agent_velocity)
 
-    # def calculate_next_velocities(self, agentID, agentPos):
-    #     # calculate the next velocities of the agents
-    #     self.sim_results[-1].states[self.step][self.env.agent_idx_to_state_idx(
-    #         agentID)] = agentPos
-
+    # def calculate_next_velocities_(self, agentID, agentPos):
     #     state = self.states[self.step]
     #     observation = self.env.observe()
 
     #     for name, controller in self.controllers.items():
     #         action = controller.policy(observation)
-    #         next_state, r, done, _ = self.env.step(
-    #             action, compute_reward=False)
-    #         reward += r
+    #         next_state, r, done, _ = self.env.step_(
+    #             action, False, agentID, agentPos)
+    #         self.reward += r
 
     #         self.states[self.step + 1] = next_state
     #         self.actions[self.step] = action.flatten()
@@ -186,6 +192,7 @@ class CollisionAvoidanceSystem(Node):
 
     #         self.step += 1
     #         self.done = done
+    #     return self.states, self.observations, self.actions, self.step
 
     def calculate_next_velocities(self,):
         # calculate the next velocities of the agents
@@ -193,8 +200,6 @@ class CollisionAvoidanceSystem(Node):
         observation = self.env.observe()
 
         for name, controller in self.controllers.items():
-            print(observation)
-
             action = controller.policy(observation)
             next_state, r, done, _ = self.env.step(
                 action, compute_reward=False)
@@ -207,7 +212,23 @@ class CollisionAvoidanceSystem(Node):
             self.step += 1
             self.done = done
         return self.states, self.observations, self.actions, self.step
+    
+    def write_positions_to_file(self, time_step):
+        # write the agent positions to a file
+        with open('agent_positions.txt', 'a') as f:
+            f.write(str(time_step) + " ")
+            agent_pos_list = self.get_agent_positions()
+            for i in range(0, len(agent_pos_list), 2):
+                # write with .2f precision
+                f.write("({:.4f},{:.4f}) ".format(
+                    agent_pos_list[i], agent_pos_list[i+1]))
 
+            f.write("\n")
+
+    def delete_file(self, ):
+        # delete the file if exists
+        if os.path.exists("agent_positions.txt"):
+            os.remove("agent_positions.txt")
 
 def main():
     rclpy.init(args=None)

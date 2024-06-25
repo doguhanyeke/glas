@@ -35,8 +35,8 @@ class SingleIntegratorParam():
 
         # sim
         self.sim_t0 = 0
-        self.sim_tf = 200
-        self.sim_dt = 0.5
+        self.sim_tf = 200000
+        self.sim_dt = 0.01
         self.sim_times = np.arange(self.sim_t0, self.sim_tf, self.sim_dt)
         self.sim_nt = len(self.sim_times)
         self.plots_fn = 'plots.pdf'
@@ -49,7 +49,7 @@ class SingleIntegratorParam():
         # safety
         self.safety = "cf_si_2"
         if self.safety == "cf_si_2":
-            self.a_max = 0.5
+            self.a_max = 5
             self.pi_max = 0.8
             self.kp = 1.5
             self.cbf_kp = 0.5
