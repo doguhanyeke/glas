@@ -318,6 +318,11 @@ class SingleIntegrator(Env):
         self.agents[agent_id].p = np.array([x, y])
         self.agents[agent_id].s = np.array([x, y])
 
+
+
+        idx = self.agent_idx_to_state_idx(agent_id)
+        self.s[idx:idx+2] = np.array([x, y])
+        
         self.positions = np.array([agent_i.p for agent_i in self.agents])
         self.kd_tree_neighbors = spatial.KDTree(self.positions)
 

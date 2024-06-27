@@ -36,7 +36,7 @@ class SingleIntegratorParam():
         # sim
         self.sim_t0 = 0
         self.sim_tf = 200000
-        self.sim_dt = 0.01
+        self.sim_dt = 1
         self.sim_times = np.arange(self.sim_t0, self.sim_tf, self.sim_dt)
         self.sim_nt = len(self.sim_times)
         self.plots_fn = 'plots.pdf'

@@ -49,7 +49,9 @@ class CollisionAvoidanceSystem(Node):
         self.args = parse_args()
 
         self.robot_id = self.args.robot_id
-        print('id', self.robot_id)
+        self.initial_x = self.args.initial_x
+        self.initial_y = self.args.initial_y
+        print(self.robot_id, self.initial_x, self.initial_y)
         # print("here", self.args)
         self.param = SingleIntegratorParam()
         # print("here", self.param)
@@ -108,7 +110,7 @@ class CollisionAvoidanceSystem(Node):
     def vehicle_local_pos_callback(self, msg, id):
         # TODO: not assign, add
         
-        self.set_agent_position(id, msg.y + 9.0, msg.x + 7.0)
+        self.set_agent_position(id, msg.y + self.initial_x, msg.x + self.initial_y)
 
         self.calculate_next_velocities()
         trajectory_msg = TrajectorySetpoint()
