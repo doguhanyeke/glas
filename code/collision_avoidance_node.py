@@ -64,7 +64,7 @@ class CollisionAvoidanceSystem(Node):
         self.controllers = {
             'current': torch.load(self.param.il_train_model_fn), }
         # print("here", self.controllers)
-
+        self.param.default_instance = self.args.instance
         self.s0 = run_singleintegrator.load_instance(
             self.param, self.env, self.args.instance)
 

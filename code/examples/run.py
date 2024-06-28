@@ -13,9 +13,9 @@ def parse_args():
     parser.add_argument("--robot_id", type=int, 
                         help="Robot Id")
     parser.add_argument("--initial_x", type=float, 
-                        help="Robot Id")
+                        help="Start Position")
     parser.add_argument("--initial_y", type=float, 
-                        help="Robot Id")
+                        help="Start Position")
     parser.add_argument("--il", action='store_true',
                         help="Run Imitation Learning")
     parser.add_argument("--animate", action='store_true')
